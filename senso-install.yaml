@@ -1,0 +1,56 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: senso-system
+
+---
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: senso-config
+  namespace: senso-system
+data:
+  SENSO_INFLUX_URL: "<your-url-here>"
+  SENSO_INFLUX_TOKEN: "<your-token-here>"
+  SENSO_INFLUX_BUCKET: "<your-bucket-here>"
+  SENSO_INFLUX_ORG: "<your-organization-here>"
+  SENSO_DATA_RATE_SECONDS: "60"
+
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: senso-metrics
+  namespace: senso-system
+spec:
+  selector:
+    matchLabels:
+      app: senso-monitor
+  template:
+    metadata:
+      labels:
+        app: senso-monitor
+    spec:
+      containers:
+      - name: senso
+        image: ghcr.io/reinterpretcat/senso
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true # to access ic2 bus
+        envFrom:
+        - configMapRef:
+            name: senso-config
+        env:
+        - name: SENSO_HOST_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: SENSO_HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
