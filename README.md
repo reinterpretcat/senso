@@ -2,6 +2,7 @@
 
 A very lightweight sensor monitoring system for Raspberry Pi clusters running Kubernetes. So far support is added only for BME280 Barometric sensor.
 
+![image](https://github.com/reinterpretcat/senso/assets/1611077/432125fc-d96b-4fcc-8019-78632d228daf)
 
 # Description
 
